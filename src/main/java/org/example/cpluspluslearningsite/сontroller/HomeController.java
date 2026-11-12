@@ -1,30 +1,28 @@
-package com.example.cpplearn.controller;
+package org.example.cpluspluslearningsite.controller;
 
+import lombok.RequiredArgsConstructor;
+import org.example.cpluspluslearningsite.repository.CourseModuleRepository;
+import org.example.cpluspluslearningsite.repository.UserRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
-import java.util.List;
-
 @Controller
+@RequiredArgsConstructor
 public class HomeController {
 
-    // Временная модель для карточек курсов
-    public record CourseModule(String title, String description, String level, int lessonsCount) {}
+    private final CourseModuleRepository moduleRepository;
+    private final UserRepository userRepository;
 
     @GetMapping("/")
     public String home(Model model) {
-        List<CourseModule> modules = List.of(
-                new CourseModule("Основы C++", "Переменные, типы данных, циклы, условия и базовый ввод/вывод (iostream).", "Новичок", 14),
-                new CourseModule("Память и Указатели", "Указатели, ссылки, динамическая память (Stack vs Heap) и умные указатели.", "Средний", 10),
-                new CourseModule("ООП в C++", "Классы, объекты, инкапсуляция, наследование, полиморфизм и виртуальные функции.", "Средний", 16),
-                new CourseModule("Стандартная библиотека (STL)", "Контейнеры (vector, map, set), итераторы, алгоритмы и шаблоны.", "Продвинутый", 12),
-                new CourseModule("Современный C++ (C++17/20/23)", "Move-семантика, лямбда-выражения, многопоточность и концепты.", "Профи", 8)
-        );
+        // Получаем все модули из PostgreSQL, отсортированные по порядку
+        model.addAttribute("modules", moduleRepository.findAllByOrderByOrderIndexAsc());
 
-        model.addAttribute("modules", modules);
-        model.addAttribute("studentsCount", "12,450");
+        // Получаем реальное количество зарегистрированных пользователей (+1000 как заглушка)
+        long count = userRepository.count() + 1000;
+        model.addAttribute("studentsCount", String.valueOf(count));
 
-        return "index"; //Ищет файл index.html в папке templates
+        return "index";
     }
 }

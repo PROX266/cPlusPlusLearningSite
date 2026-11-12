@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,13 +17,32 @@
             <span class="bg-blue-600 text-white font-bold px-2.5 py-1 rounded text-lg font-mono">C++</span>
             <span class="font-bold text-xl tracking-tight">CppMaster</span>
         </div>
+
         <div class="hidden md:flex gap-8 text-sm font-medium text-slate-300">
             <a href="#courses" class="hover:text-white transition">Программа обучения</a>
-            <a href="#sandbox" class="hover:text-white transition">Песочница</a>
-            <a href="#reviews" class="hover:text-white transition">Отзывы</a>
+            <a href="/sandbox" class="hover:text-white transition">Песочница</a>
         </div>
-        <div>
-            <a href="/login" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition border border-slate-700">Войти</a>
+
+        <!-- Блок авторизации -->
+        <div class="flex items-center gap-4">
+            <!-- Видно только гостям -->
+            <div sec:authorize="isAnonymous()">
+                <a th:href="@{/login}" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition border border-slate-700">
+                    Войти
+                </a>
+            </div>
+
+            <!-- Видно только авторизаванным пользователям -->
+            <div sec:authorize="isAuthenticated()" class="flex items-center gap-4">
+                    <span class="text-sm text-slate-300">
+                        Привет, <strong class="text-white" sec:authentication="name">User</strong>!
+                    </span>
+                <form th:action="@{/logout}" method="post" class="inline">
+                    <button type="submit" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 px-3 py-1.5 rounded-lg text-sm font-medium transition">
+                        Выйти
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 </nav>
@@ -37,14 +58,11 @@
                 Освойте <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">C++ с нуля</span> до уровня Pro
             </h1>
             <p class="text-slate-400 text-lg mb-8 leading-relaxed">
-                Интерактивная платформа с встроенным компилятором, практическими задачами по работе с памятью, STL и подготовкой к собеседованиям.
+                Интерактивная платформа со встроенным компилятором (WebSocket), практическими задачами по работе с памятью, STL и подготовкой к собеседованиям.
             </p>
             <div class="flex flex-wrap gap-4">
-                <a href="/register" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3.5 rounded-xl font-semibold transition shadow-lg shadow-blue-600/25">
-                    Начать учиться бесплатно
-                </a>
-                <a href="#courses" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-6 py-3.5 rounded-xl font-semibold transition border border-slate-700">
-                    Посмотреть модули
+                <a href="#courses" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3.5 rounded-xl font-semibold transition shadow-lg shadow-blue-600/25">
+                    Начать учиться
                 </a>
             </div>
             <p class="text-xs text-slate-500 mt-6">
@@ -78,6 +96,7 @@
     </div>
 </main>
 
+<!-- Секция с модулями -->
 <section id="courses" class="py-16 bg-slate-950/50 border-t border-slate-800/80">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center max-w-2xl mx-auto mb-12">
@@ -100,7 +119,7 @@
                     <p class="text-slate-400 text-sm leading-relaxed mb-6"
                        th:text="${module.description}">Описание модуля</p>
                 </div>
-                <a href="#" class="text-sm font-semibold text-blue-400 hover:text-blue-300 inline-flex items-center gap-1">
+                <a href="/course/1" class="text-sm font-semibold text-blue-400 hover:text-blue-300 inline-flex items-center gap-1">
                     Перейти к модулю <span>&rarr;</span>
                 </a>
             </div>
@@ -108,9 +127,10 @@
     </div>
 </section>
 
+<!-- Подвал -->
 <footer class="border-t border-slate-800 py-8 text-center text-sm text-slate-500">
     <div class="max-w-7xl mx-auto px-4">
-        <p>&copy; 2026 CppMaster. Сделано на Java Spring Boot &amp; Thymeleaf.</p>
+        <p>&copy; 2026 CppMaster. Сделано на Java 21 &amp; Spring Boot.</p>
     </div>
 </footer>
 
