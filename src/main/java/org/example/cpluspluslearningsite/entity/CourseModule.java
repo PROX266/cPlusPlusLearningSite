@@ -33,7 +33,6 @@ public class CourseModule {
     @OneToMany(mappedBy = "module", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Lesson> lessons = new ArrayList<>();
 
-    // Вспомогательный метод для Thymeleaf, чтобы считать количество уроков
     public int getLessonsCount() {
         return lessons != null ? lessons.size() : 0;
     }

@@ -1,4 +1,4 @@
--- 1. Таблица пользователей
+-- Таблица пользователей
 CREATE TABLE users (
     id BIGSERIAL PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
@@ -8,7 +8,7 @@ CREATE TABLE users (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- 2. Таблица модулей курса (карточки на главной странице)
+-- Таблица модулей курса
 CREATE TABLE course_modules (
     id BIGSERIAL PRIMARY KEY,
     title VARCHAR(100) NOT NULL,
@@ -17,7 +17,7 @@ CREATE TABLE course_modules (
     order_index INT NOT NULL
 );
 
--- 3. Таблица уроков внутри модуля (с теорией и шаблоном C++ кода)
+-- Таблица уроков внутри модуля + теория
 CREATE TABLE lessons (
     id BIGSERIAL PRIMARY KEY,
     module_id BIGINT NOT NULL REFERENCES course_modules(id) ON DELETE CASCADE,
@@ -28,17 +28,17 @@ CREATE TABLE lessons (
     order_index INT NOT NULL
 );
 
--- 4. Таблица отправленных решений (история запусков кода пользователем)
+-- таблица отправленных решений
 CREATE TABLE submissions (
     id BIGSERIAL PRIMARY KEY,
     user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     lesson_id BIGINT NOT NULL REFERENCES lessons(id) ON DELETE CASCADE,
     submitted_code TEXT NOT NULL,
-    status VARCHAR(30) NOT NULL, -- Например: SUCCESS, COMPILE_ERROR, WRONG_ANSWER
+    status VARCHAR(30) NOT NULL,
     submitted_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- Заполняем таблицу модулей начальными данными для главной страницы
+-- начальные данные
 INSERT INTO course_modules (title, description, level, order_index) VALUES
 ('Основы C++', 'Переменные, типы данных, циклы, условия и базовый ввод/вывод (iostream).', 'Новичок', 1),
 ('Память и Указатели', 'Указатели, ссылки, динамическая память (Stack vs Heap) и умные указатели.', 'Средний', 2),
@@ -46,7 +46,7 @@ INSERT INTO course_modules (title, description, level, order_index) VALUES
 ('Стандартная библиотека (STL)', 'Контейнеры (vector, map, set), итераторы, алгоритмы и шаблоны.', 'Продвинутый', 4),
 ('Современный C++ (C++20/23)', 'Move-семантика, лямбда-выражения, многопоточность и концепты.', 'Профи', 5);
 
--- Добавим пару тестовых уроков в первый модуль
+-- тестовые уроки
 INSERT INTO lessons (module_id, title, theory_content, starter_code, expected_output, order_index) VALUES
 (1, 'Привет, Мир!', 'Разбираем структуру первой программы на C++ и подключение библиотеки <iostream>.', '#include <iostream>\n\nint main() {\n    // Напишите ваш код здесь\n    return 0;\n}', 'Hello, World!', 1),
 (1, 'Переменные и типы данных', 'Изучаем типы int, double, char и bool, а также размер занимаемой ими памяти.', '#include <iostream>\n\nint main() {\n    int a = 5;\n    std::cout << a;\n    return 0;\n}', '5', 2);
