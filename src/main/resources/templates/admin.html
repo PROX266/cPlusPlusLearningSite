@@ -21,14 +21,14 @@
                 </span>
         </div>
         <div class="flex items-center gap-4">
-            <a href="/" class="text-sm text-slate-400 hover:text-white transition">Вернуться на сайт</a>
+            <a href="/" class="text-sm text-slate-400 hover:text-white transition">&larr; Вернуться на сайт</a>
         </div>
     </div>
 </nav>
 
 <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
 
-    <!-- 1. Карточки со сводной статистикой -->
+    <!-- 1. Карточки статистики -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
             <p class="text-xs text-slate-400 uppercase font-semibold">Пользователей</p>
@@ -48,7 +48,85 @@
         </div>
     </div>
 
-    <!-- 2. Последние выполненные задания (Активность по коду) -->
+    <!-- 2. Блок: Поиск и Список пользователей -->
+    <section id="users-section" class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+            <div>
+                <h2 class="text-lg font-bold">Пользователи системы</h2>
+                <p class="text-xs text-slate-400">Найдено: <span th:text="${#lists.size(users)}">0</span></p>
+            </div>
+
+            <!-- ФОРМА ПОИСКА -->
+            <form th:action="@{/admin}" method="get" class="flex gap-2 w-full md:w-auto">
+                <div class="relative w-full md:w-72">
+                    <label>
+                        <input type="text"
+                               name="query"
+                               th:value="${searchQuery}"
+                               placeholder="Поиск по ID или нику..."
+                               class="w-full bg-slate-950 border border-slate-700 text-slate-200 text-sm rounded-lg px-3 py-2 pl-9 focus:outline-none focus:border-blue-500">
+                    </label>
+                    <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+                <button type="submit"
+                        class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
+                    Найти
+                </button>
+                <!-- Кнопка сброса (видна, если был поиск) -->
+                <a th:if="${searchQuery != null and !searchQuery.isEmpty()}"
+                   th:href="@{/admin}"
+                   class="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 px-3 py-2 rounded-lg text-sm font-medium transition flex items-center">
+                    ✕ Сброс
+                </a>
+            </form>
+        </div>
+
+        <!-- Таблица пользователей -->
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-sm">
+                <thead>
+                <tr class="border-b border-slate-800 text-slate-400">
+                    <th class="pb-3 px-4">ID</th>
+                    <th class="pb-3 px-4">Логин</th>
+                    <th class="pb-3 px-4">Email</th>
+                    <th class="pb-3 px-4">Роль</th>
+                    <th class="pb-3 px-4">Дата регистрации</th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800">
+                <!-- Если ничего не найдено -->
+                <tr th:if="${#lists.isEmpty(users)}">
+                    <td colspan="5" class="py-8 text-center text-slate-500">
+                        Пользователи по запросу «<span class="text-slate-300" th:text="${searchQuery}"></span>» не найдены
+                    </td>
+                </tr>
+
+                <!-- Список найденных юзеров -->
+                <tr th:each="u : ${users}" class="hover:bg-slate-800/40 transition">
+                    <td class="py-3 px-4 font-mono text-xs text-slate-400" th:text="'#' + ${u.id}">#1</td>
+                    <td class="py-3 px-4 font-semibold text-white" th:text="${u.username}">admin</td>
+                    <td class="py-3 px-4 text-slate-300" th:text="${u.email}">mail@test.com</td>
+                    <td class="py-3 px-4">
+                                <span th:if="${u.role == 'ROLE_ADMIN'}"
+                                      class="bg-purple-500/10 text-purple-400 border border-purple-500/20 px-2 py-0.5 rounded text-xs font-semibold">
+                                    ADMIN
+                                </span>
+                        <span th:if="${u.role == 'ROLE_USER'}"
+                              class="bg-slate-800 text-slate-300 px-2 py-0.5 rounded text-xs">
+                                    USER
+                                </span>
+                    </td>
+                    <td class="py-3 px-4 text-slate-400 text-xs"
+                        th:text="${#temporals.format(u.createdAt, 'dd.MM.yyyy HH:mm')}">01.01.2026 12:00</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- 3. Последние выполненные задания -->
     <section class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
         <div class="px-6 py-4 border-b border-slate-800 flex justify-between items-center">
             <h2 class="text-lg font-bold">Последние выполненные задания</h2>
@@ -68,7 +146,7 @@
                 <tbody class="divide-y divide-slate-800">
                 <tr th:each="sub : ${submissions}" class="hover:bg-slate-800/40 transition">
                     <td class="py-4 px-6 font-medium text-white" th:text="${sub.user.username}">student</td>
-                    <td class="py-4 px-6 text-slate-300" th:text="${sub.lesson.title}">Привет, Мир!</td>
+                    <td class="py-4 px-6 text-slate-300" th:text="${sub.exercise.title}">Практика: Привет, Мир!</td>
                     <td class="py-4 px-6">
                                 <span th:if="${sub.status == 'SUCCESS'}"
                                       class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded text-xs font-semibold">
@@ -95,64 +173,25 @@
         </div>
     </section>
 
-    <!-- 3. Две колонки: Комментарии и Список пользователей -->
-    <div class="grid lg:grid-cols-2 gap-8">
-
-        <!-- Последние комментарии -->
-        <section class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-            <h2 class="text-lg font-bold mb-4">Последние комментарии</h2>
-            <div class="space-y-4">
-                <div th:each="comment : ${comments}" class="bg-slate-950 border border-slate-800 rounded-xl p-4">
-                    <div class="flex justify-between items-center mb-2">
-                        <div class="flex items-center gap-2">
-                            <span class="font-semibold text-blue-400 text-sm" th:text="${comment.user.username}">user</span>
-                            <span class="text-xs text-slate-500">&bull; к уроку:</span>
-                            <span class="text-xs text-slate-300 font-medium" th:text="${comment.lesson.title}">Урок</span>
-                        </div>
-                        <span class="text-xs text-slate-500"
-                              th:text="${#temporals.format(comment.createdAt, 'dd.MM HH:mm')}">12:00</span>
+    <!-- 4. Последние комментарии -->
+    <section class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+        <h2 class="text-lg font-bold mb-4">Последние комментарии</h2>
+        <div class="space-y-4">
+            <div th:each="comment : ${comments}" class="bg-slate-950 border border-slate-800 rounded-xl p-4">
+                <div class="flex justify-between items-center mb-2">
+                    <div class="flex items-center gap-2">
+                        <span class="font-semibold text-blue-400 text-sm" th:text="${comment.user.username}">user</span>
+                        <span class="text-xs text-slate-500">&bull; к уроку:</span>
+                        <span class="text-xs text-slate-300 font-medium" th:text="${comment.lesson.title}">Урок</span>
                     </div>
-                    <p class="text-slate-300 text-sm leading-relaxed" th:text="${comment.content}">Текст комментария</p>
+                    <span class="text-xs text-slate-500"
+                          th:text="${#temporals.format(comment.createdAt, 'dd.MM HH:mm')}">12:00</span>
                 </div>
+                <p class="text-slate-300 text-sm leading-relaxed" th:text="${comment.content}">Текст комментария</p>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <!-- Зарегистрированные пользователи -->
-        <section class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-            <h2 class="text-lg font-bold mb-4">Пользователи системы</h2>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse text-sm">
-                    <thead>
-                    <tr class="border-b border-slate-800 text-slate-400">
-                        <th class="pb-3">Логин</th>
-                        <th class="pb-3">Email</th>
-                        <th class="pb-3">Роль</th>
-                        <th class="pb-3">Дата регистрации</th>
-                    </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-800">
-                    <tr th:each="u : ${users}">
-                        <td class="py-3 font-medium text-white" th:text="${u.username}">admin</td>
-                        <td class="py-3 text-slate-400" th:text="${u.email}">mail</td>
-                        <td class="py-3">
-                                    <span th:if="${u.role == 'ROLE_ADMIN'}"
-                                          class="bg-purple-500/10 text-purple-400 border border-purple-500/20 px-2 py-0.5 rounded text-xs">
-                                        ADMIN
-                                    </span>
-                            <span th:if="${u.role == 'ROLE_USER'}"
-                                  class="bg-slate-800 text-slate-300 px-2 py-0.5 rounded text-xs">
-                                        USER
-                                    </span>
-                        </td>
-                        <td class="py-3 text-slate-400 text-xs"
-                            th:text="${#temporals.format(u.createdAt, 'dd.MM.yyyy HH:mm')}">01.01.2026</td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-    </div>
 </main>
 
 </body>

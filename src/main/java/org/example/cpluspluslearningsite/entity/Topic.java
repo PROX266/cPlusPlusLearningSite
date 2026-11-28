@@ -6,17 +6,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "course_modules")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class CourseModule {
+@Table(name = "topics")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+public class Topic {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "course_id", nullable = false)
+    private Course course;
 
     @Column(nullable = false, length = 100)
     private String title;
@@ -30,7 +30,8 @@ public class CourseModule {
     @Column(name = "order_index", nullable = false)
     private Integer orderIndex;
 
-    @OneToMany(mappedBy = "module", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "topic", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Builder.Default
     private List<Lesson> lessons = new ArrayList<>();
 
     public int getLessonsCount() {

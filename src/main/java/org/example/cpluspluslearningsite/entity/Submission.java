@@ -6,11 +6,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "submissions")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class Submission {
 
     @Id
@@ -22,14 +18,17 @@ public class Submission {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "lesson_id", nullable = false)
-    private Lesson lesson;
+    @JoinColumn(name = "exercise_id", nullable = false)
+    private Exercise exercise;
 
     @Column(name = "submitted_code", nullable = false, columnDefinition = "TEXT")
     private String submittedCode;
 
     @Column(nullable = false, length = 30)
     private String status; // SUCCESS, COMPILE_ERROR, WRONG_ANSWER
+
+    @Column(name = "compiler_output", columnDefinition = "TEXT")
+    private String compilerOutput;
 
     @Column(name = "submitted_at", nullable = false)
     private LocalDateTime submittedAt;

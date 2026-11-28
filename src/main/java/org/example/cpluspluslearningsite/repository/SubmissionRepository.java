@@ -7,7 +7,6 @@ import java.util.List;
 
 public interface SubmissionRepository extends JpaRepository<Submission, Long> {
 
-    // Загружаем последние 15 решений вместе с автором и уроком
-    @EntityGraph(attributePaths = {"user", "lesson"})
+    @EntityGraph(attributePaths = {"user", "exercise"})
     List<Submission> findTop15ByOrderBySubmittedAtDesc();
 }
